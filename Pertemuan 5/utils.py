@@ -114,48 +114,6 @@ class Utils :
                     1,
                     cv2.LINE_AA) 
         return img
-    
-    def postprocess_darknet(self, outs, frame, classes, 
-                        confThreshold = 0.5, nmsThreshold = 0.3, font_size=0.8, 
-                        color=(255,127,0), text_color=(255,255,255)):
-
-            frame_h, frame_w, ___ = frame.shape
-            self.frame_size = frame_h, frame_w
-
-            classIds = []
-            confidences = []
-            boxes = []
-            for out in outs:
-                for detection in out:
-                    scores = detection[5:]
-
-                    classId = np.argmax(scores)
-                    confidence = scores[classId]
-                    c_x = int(detection[0] * frame_w)
-                    c_y = int(detection[1] * frame_h)
-                    w = int(detection[2] * frame_w)
-                    h = int(detection[3] * frame_h)
-                    x = int(c_x - w / 2)
-                    y = int(c_y - h / 2)
-                    classIds.append(classId)
-                    confidences.append(float(confidence))
-                    boxes.append([x, y, w, h])
-
-            indices = cv2.dnn.NMSBoxes(boxes, confidences, confThreshold, nmsThreshold)
-            for i in indices:
-                box = boxes[i]
-                x = box[0]
-                y = box[1]
-                w = box[2]
-                h = box[3]
-
-                label = '%s: %.1f%%' % (classes[classIds[i]], (confidences[i]*100))
-                frame = self.draw_ped(frame, label, x, y, x+w, y+h, color=color, text_color=text_color, font_size=font_size)
-            
-                # calc object counter
-                self.count_object_in_roi(classes[class_ids[i]], box)
-
-            return frame
 
     def postprocess_onnx(self, outs, frame, classes, 
                         confThreshold = 0.5, nmsThreshold = 0.3, font_size=0.8, 
